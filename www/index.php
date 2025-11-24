@@ -188,16 +188,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 웹셸 실습 사이트</h1>
-
-        <div class="warning">
-            <strong>⚠️ 경고: 교육 목적 전용</strong>
-            이 사이트는 웹 보안 취약점 학습을 위한 실습 환경입니다.
-            실제 운영 환경에서는 절대 사용하지 마세요!
-        </div>
+        <h1>웹셸 실습 사이트</h1>
 
         <div class="level-selector">
-            <h3>🎮 난이도 선택</h3>
+            <h3>난이도 선택</h3>
             <div class="level-options">
                 <div class="level-option">
                     <input type="radio" name="level" id="level1" value="1" checked>
@@ -216,7 +210,7 @@
             </div>
 
             <div id="level1-info" class="level-info active">
-                <h4>📘 Level 1 - 초급 (필터링 없음)</h4>
+                <h4>Level 1 - 초급 (필터링 없음)</h4>
                 <ul>
                     <li>파일 확장자 검증 없음</li>
                     <li>MIME 타입 검증 없음</li>
@@ -228,7 +222,7 @@
             </div>
 
             <div id="level2-info" class="level-info">
-                <h4>📙 Level 2 - 중급 (확장자 + MIME 타입 검증)</h4>
+                <h4>Level 2 - 중급 (확장자 + MIME 타입 검증)</h4>
                 <ul>
                     <li>❌ <code>.php</code> 확장자 차단</li>
                     <li>❌ MIME 타입에 <code>php</code> 문자열 포함 시 차단</li>
@@ -264,7 +258,7 @@
             $files = array_diff(scandir($upload_dir), array('.', '..', '.gitkeep'));
             if (count($files) > 0) {
                 echo '<div class="file-list">';
-                echo '<h2>📂 업로드된 파일 목록:</h2>';
+                echo '<h2>업로드된 파일 목록:</h2>';
                 foreach ($files as $file) {
                     echo '<div class="file-item">';
                     echo '<a href="uploads/' . htmlspecialchars($file) . '" target="_blank">' . htmlspecialchars($file) . '</a>';
