@@ -245,7 +245,7 @@
             <form action="upload.php" method="post" enctype="multipart/form-data" id="uploadForm">
                 <input type="hidden" name="level" id="selectedLevel" value="1">
                 <div class="form-group">
-                    <label for="file" class="file-label">📁 파일 업로드:</label>
+                    <label for="file" class="file-label">파일 업로드:</label>
                     <input type="file" name="file" id="file" required>
                 </div>
                 <button type="submit">업로드</button>
