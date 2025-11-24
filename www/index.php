@@ -216,20 +216,13 @@
                         <small>중급</small>
                     </label>
                 </div>
-                <div class="level-option">
-                    <input type="radio" name="level" id="level3" value="3">
-                    <label for="level3">
-                        Level 3<br>
-                        <small>고급</small>
-                    </label>
-                </div>
             </div>
 
             <div id="level1-info" class="level-info active">
                 <h4>📘 Level 1 - 초급 (필터링 없음)</h4>
                 <ul>
                     <li>파일 확장자 검증 없음</li>
-                    <li>파일 내용 검증 없음</li>
+                    <li>MIME 타입 검증 없음</li>
                     <li>모든 파일 업로드 허용</li>
                 </ul>
                 <div class="hint-box">
@@ -238,37 +231,21 @@
             </div>
 
             <div id="level2-info" class="level-info">
-                <h4>📙 Level 2 - 중급 (기본 필터링)</h4>
+                <h4>📙 Level 2 - 중급 (확장자 + MIME 타입 검증)</h4>
                 <ul>
-                    <li>❌ <code>.php</code> 확장자 차단 (소문자만)</li>
-                    <li>❌ 위험한 함수 키워드 차단: system, exec, shell_exec, eval, passthru</li>
-                    <li>✅ 대소문자 미구분</li>
-                    <li>✅ 다른 PHP 확장자는 허용</li>
+                    <li>❌ <code>.php</code> 확장자 차단</li>
+                    <li>❌ MIME 타입에 <code>php</code> 문자열 포함 시 차단</li>
+                    <li>✅ <code>.php5</code>, <code>.phtml</code> 등 다른 PHP 확장자는 허용</li>
+                    <li>✅ MIME 타입은 클라이언트에서 조작 가능</li>
                 </ul>
                 <div class="hint-box">
                     <strong>💡 힌트:</strong>
-                    확장자를 .phtml, .php5로 변경하거나 대소문자를 섞어보세요.
-                    함수명도 대소문자를 바꾸거나 다른 함수를 사용해보세요!
-                </div>
-            </div>
-
-            <div id="level3-info" class="level-info">
-                <h4>📕 Level 3 - 고급 (강화된 필터링)</h4>
-                <ul>
-                    <li>❌ 파일 크기 10KB 제한</li>
-                    <li>❌ <code>.php, .php3, .php4, .phar</code> 확장자 차단</li>
-                    <li>❌ MIME 타입 검증 (이미지/PDF/텍스트만 허용)</li>
-                    <li>❌ <code>&lt;?php</code> 태그 차단</li>
-                    <li>❌ 더 많은 위험 함수 차단 (대소문자 모두)</li>
-                    <li>✅ .phtml, .php5 등은 여전히 허용</li>
-                    <li>✅ 짧은 태그 <code>&lt;?</code>는 미차단</li>
-                    <li>✅ 백틱, pcntl_exec 등 미차단</li>
-                </ul>
-                <div class="hint-box">
-                    <strong>💡 힌트:</strong>
-                    .phtml 확장자 + 짧은 PHP 태그 &lt;? 사용,
-                    MIME 타입을 image/png로 설정,
-                    백틱(`)으로 명령 실행을 시도해보세요!
+                    확장자를 <code>.phtml</code> 또는 <code>.php5</code>로 변경하고,
+                    MIME 타입(Content-Type)을 <code>image/jpeg</code>나 <code>text/plain</code>으로 설정해보세요!
+                    <br><br>
+                    <strong>MIME 타입 변경 방법:</strong><br>
+                    - Burp Suite로 요청 가로채서 Content-Type 수정<br>
+                    - curl: <code>curl -F "file=@shell.phtml;type=image/jpeg" ...</code>
                 </div>
             </div>
         </div>

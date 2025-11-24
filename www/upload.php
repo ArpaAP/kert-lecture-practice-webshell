@@ -37,11 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $validation_log[] = '✓ Level 1: 검증 없음 - 모든 파일 허용';
             }
 
-            // Level 2: 기본 필터링 (중급 - 우회 가능)
+            // Level 2: 확장자 + MIME 타입 검증 (중급 - 우회 가능)
             elseif ($level == 2) {
                 $validation_log[] = 'Level 2 검증 시작...';
 
-                // 취약점 1: .php 확장자만 차단 (대소문자 구분, 다른 확장자 미차단)
+                // 취약점 1: .php 확장자만 차단 (.php5, .phtml 등은 허용)
                 if ($file_ext === 'php') {
                     $is_valid = false;
                     $message = '보안 정책: .php 파일은 업로드할 수 없습니다.';
@@ -50,86 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $validation_log[] = '✓ 확장자 검증 통과: .' . $file_ext;
                 }
 
-                // 취약점 2: 간단한 키워드 블랙리스트 (대소문자 구분)
+                // 취약점 2: MIME 타입에 'php' 포함 여부만 확인 (조작 가능)
                 if ($is_valid) {
-                    $dangerous_keywords = ['system', 'exec', 'shell_exec', 'eval', 'passthru'];
-                    foreach ($dangerous_keywords as $keyword) {
-                        if (strpos($file_content, $keyword) !== false) {
-                            $is_valid = false;
-                            $message = "보안 정책: 위험한 함수 '{$keyword}'가 감지되었습니다.";
-                            $validation_log[] = "✗ 내용 검증 실패: '{$keyword}' 키워드 발견";
-                            break;
-                        }
-                    }
-                    if ($is_valid) {
-                        $validation_log[] = '✓ 내용 검증 통과: 위험한 키워드 없음';
-                    }
-                }
-            }
-
-            // Level 3: 강화된 필터링 (고급 - 우회 가능)
-            elseif ($level == 3) {
-                $validation_log[] = 'Level 3 검증 시작...';
-
-                // 파일 크기 제한 (10KB)
-                if ($file_size > 10240) {
-                    $is_valid = false;
-                    $message = '보안 정책: 파일 크기는 10KB 이하여야 합니다. (현재: ' . round($file_size/1024, 2) . 'KB)';
-                    $validation_log[] = '✗ 크기 검증 실패: 10KB 초과';
-                } else {
-                    $validation_log[] = '✓ 크기 검증 통과: ' . round($file_size/1024, 2) . 'KB';
-                }
-
-                // 취약점 1: 확장자 블랙리스트 확대 (하지만 .phtml, .php5 등은 누락)
-                if ($is_valid) {
-                    $blocked_extensions = ['php', 'php3', 'php4', 'phar'];
-                    if (in_array($file_ext, $blocked_extensions)) {
+                    if (stripos($mime_type, 'php') !== false) {
                         $is_valid = false;
-                        $message = "보안 정책: .{$file_ext} 파일은 업로드할 수 없습니다.";
-                        $validation_log[] = "✗ 확장자 검증 실패: .{$file_ext} 차단됨";
-                    } else {
-                        $validation_log[] = '✓ 확장자 검증 통과: .' . $file_ext;
-                    }
-                }
-
-                // 취약점 2: MIME 타입 검증 (조작 가능)
-                if ($is_valid) {
-                    $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'];
-                    if (!in_array($mime_type, $allowed_mimes)) {
-                        $is_valid = false;
-                        $message = "보안 정책: 허용되지 않는 파일 형식입니다. (MIME: {$mime_type})";
+                        $message = "보안 정책: PHP 관련 파일은 업로드할 수 없습니다. (MIME: {$mime_type})";
                         $validation_log[] = "✗ MIME 타입 검증 실패: {$mime_type}";
                     } else {
                         $validation_log[] = "✓ MIME 타입 검증 통과: {$mime_type}";
-                    }
-                }
-
-                // 취약점 3: PHP 태그 검증 (<?php만 검사, 짧은 태그 미검증)
-                if ($is_valid) {
-                    if (stripos($file_content, '<?php') !== false) {
-                        $is_valid = false;
-                        $message = '보안 정책: PHP 코드가 감지되었습니다.';
-                        $validation_log[] = '✗ PHP 태그 검증 실패: <?php 발견';
-                    } else {
-                        $validation_log[] = '✓ PHP 태그 검증 통과';
-                    }
-                }
-
-                // 취약점 4: 강화된 키워드 블랙리스트 (하지만 백틱, 다른 함수 미검증)
-                if ($is_valid) {
-                    $dangerous_keywords = ['system', 'exec', 'shell_exec', 'eval', 'passthru',
-                                          'SYSTEM', 'EXEC', 'SHELL_EXEC', 'EVAL', 'PASSTHRU',
-                                          'popen', 'proc_open'];
-                    foreach ($dangerous_keywords as $keyword) {
-                        if (strpos($file_content, $keyword) !== false) {
-                            $is_valid = false;
-                            $message = "보안 정책: 위험한 함수 '{$keyword}'가 감지되었습니다.";
-                            $validation_log[] = "✗ 내용 검증 실패: '{$keyword}' 발견";
-                            break;
-                        }
-                    }
-                    if ($is_valid) {
-                        $validation_log[] = '✓ 내용 검증 통과: 위험한 키워드 없음';
                     }
                 }
             }
@@ -263,8 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="level-badge level-<?php echo $level; ?>">
                 Level <?php echo $level; ?> -
                 <?php
-                    echo $level == 1 ? '초급 (필터링 없음)' :
-                        ($level == 2 ? '중급 (기본 필터링)' : '고급 (강화된 필터링)');
+                    echo $level == 1 ? '초급 (필터링 없음)' : '중급 (확장자 + MIME 검증)';
                 ?>
             </span>
         </div>
