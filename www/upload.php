@@ -97,86 +97,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 700px;
+            border: 1px solid #e0e0e0;
+            max-width: 800px;
             width: 100%;
+            margin: 40px auto;
+            padding: 40px;
         }
         h1 {
-            color: #333;
+            color: #222;
             margin-bottom: 30px;
             text-align: center;
+            font-size: 24px;
+            font-weight: 600;
         }
         .level-badge {
             display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
+            padding: 6px 16px;
+            font-size: 13px;
             font-weight: 600;
             margin-bottom: 20px;
+            border: 1px solid #d0d0d0;
+            background: #fafafa;
+            color: #333;
         }
-        .level-1 { background: #d4edda; color: #155724; }
-        .level-2 { background: #fff3cd; color: #856404; }
-        .level-3 { background: #f8d7da; color: #721c24; }
         .message {
-            padding: 20px;
-            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #d0d0d0;
             margin: 20px 0;
-            font-size: 1.1em;
+            font-size: 15px;
         }
         .success {
-            background: #d4edda;
-            border: 2px solid #28a745;
+            background: #f0fff4;
+            border-color: #90ee90;
             color: #155724;
         }
         .error {
-            background: #f8d7da;
-            border: 2px solid #dc3545;
+            background: #fff5f5;
+            border-color: #ffb3ba;
             color: #721c24;
         }
         .validation-log {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
             padding: 20px;
             margin: 20px 0;
             font-family: 'Courier New', monospace;
-            font-size: 0.9em;
+            font-size: 13px;
         }
         .validation-log h3 {
-            color: #495057;
-            margin-bottom: 10px;
-            font-family: 'Segoe UI', sans-serif;
+            color: #222;
+            margin-bottom: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 600;
         }
         .validation-log div {
-            padding: 5px 0;
-            color: #495057;
+            padding: 4px 0;
+            color: #555;
         }
         .back-button {
             display: inline-block;
             margin-top: 20px;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px 32px;
+            background: #333;
             color: white;
             text-decoration: none;
-            border-radius: 10px;
             font-weight: 600;
-            transition: transform 0.2s;
+            font-size: 14px;
+            transition: background 0.2s;
         }
         .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            background: #000;
         }
         .center {
             text-align: center;

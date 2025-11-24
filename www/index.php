@@ -11,50 +11,48 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 800px;
+            border: 1px solid #e0e0e0;
+            max-width: 900px;
             width: 100%;
+            margin: 0 auto;
+            padding: 40px;
         }
         h1 {
-            color: #333;
+            color: #222;
             margin-bottom: 10px;
-            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
         }
         .warning {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 15px;
+            background: #fff9e6;
+            border: 1px solid #ffcc00;
+            padding: 16px;
             margin: 20px 0;
             color: #856404;
         }
         .warning strong {
             display: block;
             margin-bottom: 5px;
-            font-size: 1.1em;
+            font-weight: 600;
         }
         .level-selector {
-            margin: 25px 0;
-            background: #f8f9fa;
-            border-radius: 10px;
+            margin: 30px 0;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
             padding: 20px;
         }
         .level-selector h3 {
-            color: #333;
+            color: #222;
             margin-bottom: 15px;
-            font-size: 1.1em;
+            font-size: 16px;
+            font-weight: 600;
         }
         .level-options {
             display: flex;
@@ -69,27 +67,26 @@
         }
         .level-option label {
             display: block;
-            padding: 15px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #d0d0d0;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             background: white;
+            font-size: 14px;
         }
         .level-option input[type="radio"]:checked + label {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #333;
+            background: #333;
             color: white;
-            font-weight: 600;
         }
         .level-option label:hover {
-            border-color: #667eea;
+            border-color: #666;
         }
         .level-info {
             background: white;
-            border-radius: 8px;
-            padding: 15px;
+            border: 1px solid #e0e0e0;
+            padding: 16px;
             margin-top: 15px;
             display: none;
         }
@@ -97,25 +94,28 @@
             display: block;
         }
         .level-info h4 {
-            color: #667eea;
+            color: #222;
             margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 600;
         }
         .level-info ul {
             margin-left: 20px;
             color: #555;
+            font-size: 14px;
         }
         .level-info li {
-            margin: 5px 0;
+            margin: 6px 0;
         }
         .hint-box {
-            background: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 10px 15px;
-            margin-top: 10px;
-            border-radius: 4px;
+            background: #f0f7ff;
+            border-left: 3px solid #0066cc;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 13px;
         }
         .hint-box strong {
-            color: #1976D2;
+            color: #0066cc;
         }
         .upload-form {
             margin: 30px 0;
@@ -126,63 +126,60 @@
         label.file-label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #333;
             font-weight: 600;
+            font-size: 14px;
         }
         input[type="file"] {
             width: 100%;
             padding: 12px;
-            border: 2px dashed #667eea;
-            border-radius: 10px;
-            background: #f8f9ff;
+            border: 1px solid #d0d0d0;
+            background: #fafafa;
             cursor: pointer;
-            transition: all 0.3s;
+            font-size: 14px;
         }
         input[type="file"]:hover {
-            background: #e8e9ff;
-            border-color: #764ba2;
+            border-color: #999;
         }
         button {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 14px;
+            background: #333;
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: background 0.2s;
         }
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            background: #000;
         }
         .file-list {
             margin-top: 30px;
         }
         .file-list h2 {
-            color: #333;
+            color: #222;
             margin-bottom: 15px;
-            font-size: 1.3em;
+            font-size: 18px;
+            font-weight: 600;
         }
         .file-item {
-            background: #f8f9fa;
-            padding: 12px 15px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 12px 16px;
             margin: 8px 0;
-            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.2s;
         }
         .file-item:hover {
-            background: #e9ecef;
+            background: #f0f0f0;
         }
         .file-item a {
-            color: #667eea;
+            color: #0066cc;
             text-decoration: none;
-            font-weight: 500;
+            font-size: 14px;
         }
         .file-item a:hover {
             text-decoration: underline;

