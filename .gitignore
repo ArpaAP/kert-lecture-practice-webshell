@@ -1,0 +1,20 @@
+# 업로드된 파일들
+www/uploads/*
+!www/uploads/.gitkeep
+
+# Docker 관련
+.env
+
+# 로그 파일
+*.log
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# IDE 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
