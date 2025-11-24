@@ -24,7 +24,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
         }
         h1 {
@@ -45,13 +45,85 @@
             margin-bottom: 5px;
             font-size: 1.1em;
         }
+        .level-selector {
+            margin: 25px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .level-selector h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .level-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .level-option {
+            flex: 1;
+        }
+        .level-option input[type="radio"] {
+            display: none;
+        }
+        .level-option label {
+            display: block;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        .level-option input[type="radio"]:checked + label {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        .level-option label:hover {
+            border-color: #667eea;
+        }
+        .level-info {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        .level-info.active {
+            display: block;
+        }
+        .level-info h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .level-info ul {
+            margin-left: 20px;
+            color: #555;
+        }
+        .level-info li {
+            margin: 5px 0;
+        }
+        .hint-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        .hint-box strong {
+            color: #1976D2;
+        }
         .upload-form {
             margin: 30px 0;
         }
         .form-group {
             margin-bottom: 20px;
         }
-        label {
+        label.file-label {
             display: block;
             margin-bottom: 8px;
             color: #555;
@@ -86,21 +158,6 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
-        .message {
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        .success {
-            background: #d4edda;
-            border: 2px solid #28a745;
-            color: #155724;
-        }
-        .error {
-            background: #f8d7da;
-            border: 2px solid #dc3545;
-            color: #721c24;
-        }
         .file-list {
             margin-top: 30px;
         }
@@ -130,24 +187,6 @@
         .file-item a:hover {
             text-decoration: underline;
         }
-        .vulnerability-info {
-            background: #f8d7da;
-            border: 2px solid #dc3545;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 30px;
-        }
-        .vulnerability-info h3 {
-            color: #721c24;
-            margin-bottom: 10px;
-        }
-        .vulnerability-info ul {
-            margin-left: 20px;
-            color: #721c24;
-        }
-        .vulnerability-info li {
-            margin: 5px 0;
-        }
     </style>
 </head>
 <body>
@@ -160,10 +199,85 @@
             실제 운영 환경에서는 절대 사용하지 마세요!
         </div>
 
+        <div class="level-selector">
+            <h3>🎮 난이도 선택</h3>
+            <div class="level-options">
+                <div class="level-option">
+                    <input type="radio" name="level" id="level1" value="1" checked>
+                    <label for="level1">
+                        Level 1<br>
+                        <small>초급</small>
+                    </label>
+                </div>
+                <div class="level-option">
+                    <input type="radio" name="level" id="level2" value="2">
+                    <label for="level2">
+                        Level 2<br>
+                        <small>중급</small>
+                    </label>
+                </div>
+                <div class="level-option">
+                    <input type="radio" name="level" id="level3" value="3">
+                    <label for="level3">
+                        Level 3<br>
+                        <small>고급</small>
+                    </label>
+                </div>
+            </div>
+
+            <div id="level1-info" class="level-info active">
+                <h4>📘 Level 1 - 초급 (필터링 없음)</h4>
+                <ul>
+                    <li>파일 확장자 검증 없음</li>
+                    <li>파일 내용 검증 없음</li>
+                    <li>모든 파일 업로드 허용</li>
+                </ul>
+                <div class="hint-box">
+                    <strong>💡 힌트:</strong> 어떤 PHP 파일이든 그대로 업로드할 수 있습니다!
+                </div>
+            </div>
+
+            <div id="level2-info" class="level-info">
+                <h4>📙 Level 2 - 중급 (기본 필터링)</h4>
+                <ul>
+                    <li>❌ <code>.php</code> 확장자 차단 (소문자만)</li>
+                    <li>❌ 위험한 함수 키워드 차단: system, exec, shell_exec, eval, passthru</li>
+                    <li>✅ 대소문자 미구분</li>
+                    <li>✅ 다른 PHP 확장자는 허용</li>
+                </ul>
+                <div class="hint-box">
+                    <strong>💡 힌트:</strong>
+                    확장자를 .phtml, .php5로 변경하거나 대소문자를 섞어보세요.
+                    함수명도 대소문자를 바꾸거나 다른 함수를 사용해보세요!
+                </div>
+            </div>
+
+            <div id="level3-info" class="level-info">
+                <h4>📕 Level 3 - 고급 (강화된 필터링)</h4>
+                <ul>
+                    <li>❌ 파일 크기 10KB 제한</li>
+                    <li>❌ <code>.php, .php3, .php4, .phar</code> 확장자 차단</li>
+                    <li>❌ MIME 타입 검증 (이미지/PDF/텍스트만 허용)</li>
+                    <li>❌ <code>&lt;?php</code> 태그 차단</li>
+                    <li>❌ 더 많은 위험 함수 차단 (대소문자 모두)</li>
+                    <li>✅ .phtml, .php5 등은 여전히 허용</li>
+                    <li>✅ 짧은 태그 <code>&lt;?</code>는 미차단</li>
+                    <li>✅ 백틱, pcntl_exec 등 미차단</li>
+                </ul>
+                <div class="hint-box">
+                    <strong>💡 힌트:</strong>
+                    .phtml 확장자 + 짧은 PHP 태그 &lt;? 사용,
+                    MIME 타입을 image/png로 설정,
+                    백틱(`)으로 명령 실행을 시도해보세요!
+                </div>
+            </div>
+        </div>
+
         <div class="upload-form">
-            <form action="upload.php" method="post" enctype="multipart/form-data">
+            <form action="upload.php" method="post" enctype="multipart/form-data" id="uploadForm">
+                <input type="hidden" name="level" id="selectedLevel" value="1">
                 <div class="form-group">
-                    <label for="file">📁 파일 업로드:</label>
+                    <label for="file" class="file-label">📁 파일 업로드:</label>
                     <input type="file" name="file" id="file" required>
                 </div>
                 <button type="submit">업로드</button>
@@ -173,7 +287,7 @@
         <?php
         $upload_dir = 'uploads/';
         if (is_dir($upload_dir)) {
-            $files = array_diff(scandir($upload_dir), array('.', '..'));
+            $files = array_diff(scandir($upload_dir), array('.', '..', '.gitkeep'));
             if (count($files) > 0) {
                 echo '<div class="file-list">';
                 echo '<h2>📂 업로드된 파일 목록:</h2>';
@@ -187,19 +301,28 @@
             }
         }
         ?>
-
-        <div class="vulnerability-info">
-            <h3>🔓 취약점 정보</h3>
-            <ul>
-                <li>파일 확장자 검증 없음</li>
-                <li>파일 내용 검증 없음</li>
-                <li>업로드 디렉토리 실행 권한 허용</li>
-                <li>파일명 필터링 없음</li>
-            </ul>
-            <p style="margin-top: 10px; color: #721c24;">
-                <strong>실습 목표:</strong> PHP 웹셸을 업로드하고 실행해보세요!
-            </p>
-        </div>
     </div>
+
+    <script>
+        // 레벨 선택 시 정보 표시 및 hidden 필드 업데이트
+        const levelRadios = document.querySelectorAll('input[name="level"]');
+        const levelInfos = document.querySelectorAll('.level-info');
+        const selectedLevelInput = document.getElementById('selectedLevel');
+
+        levelRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const level = e.target.value;
+
+                // 모든 정보 숨기기
+                levelInfos.forEach(info => info.classList.remove('active'));
+
+                // 선택된 레벨 정보 표시
+                document.getElementById(`level${level}-info`).classList.add('active');
+
+                // hidden 필드 업데이트
+                selectedLevelInput.value = level;
+            });
+        });
+    </script>
 </body>
 </html>
