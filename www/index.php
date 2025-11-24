@@ -216,9 +216,6 @@
                     <li>MIME 타입 검증 없음</li>
                     <li>모든 파일 업로드 허용</li>
                 </ul>
-                <div class="hint-box">
-                    <strong>💡 힌트:</strong> 어떤 PHP 파일이든 그대로 업로드할 수 있습니다!
-                </div>
             </div>
 
             <div id="level2-info" class="level-info">
@@ -229,15 +226,6 @@
                     <li>✅ <code>.php5</code>, <code>.phtml</code> 등 다른 PHP 확장자는 허용</li>
                     <li>✅ MIME 타입은 클라이언트에서 조작 가능</li>
                 </ul>
-                <div class="hint-box">
-                    <strong>💡 힌트:</strong>
-                    확장자를 <code>.phtml</code> 또는 <code>.php5</code>로 변경하고,
-                    MIME 타입(Content-Type)을 <code>image/jpeg</code>나 <code>text/plain</code>으로 설정해보세요!
-                    <br><br>
-                    <strong>MIME 타입 변경 방법:</strong><br>
-                    - Burp Suite로 요청 가로채서 Content-Type 수정<br>
-                    - curl: <code>curl -F "file=@shell.phtml;type=image/jpeg" ...</code>
-                </div>
             </div>
         </div>
 
